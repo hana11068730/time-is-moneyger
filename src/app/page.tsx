@@ -215,8 +215,8 @@ export default function JibunTimer() {
   const [view, setView] = useState<View>("home");
   const [activities, setActivities] = useState<Activity[]>([]);
   const [name, setName] = useState("");
-  const [hour, setHour] = useState(0);
-  const [min, setMin] = useState(0);
+  const [hour, setHour] = useState<number | null>(null);
+  const [min, setMin] = useState<number | null>(null);
   const [category, setCategory] = useState(categories[0]);
   type HistoryRecord = { activities: Activity[]; date: string };
   const [history, setHistory] = useState<HistoryRecord[]>([]);
@@ -442,41 +442,31 @@ export default function JibunTimer() {
             <div className="flex-1">
               <label className="block text-lg font-bold text-purple-400 mb-1">時間 {MODE_EMOJIS[aiMode]?.hour || MODE_EMOJIS['gal'].hour}</label>
               <div className="flex gap-2 items-center">
-                <input
-                  type="number"
-                  min={0}
-                  max={24}
-                  value={hour === 0 ? "" : String(hour)}
-                  onChange={e => setHour(e.target.value === "" ? 0 : Number(e.target.value))}
+                <select
+                  value={hour ?? ''}
+                  onChange={e => setHour(e.target.value === '' ? null : Number(e.target.value))}
                   className={`border-2 ${styles.inputBorder} rounded-full px-4 py-2 w-24 ${styles.inputText} font-bold ${styles.inputBg}`}
-                  placeholder="時間を入力 or 選択"
-                  list="hour-list"
-                />
-                <datalist id="hour-list">
-                  {[...Array(25).keys()].map(h => (
-                    <option key={h} value={h}>{h} 時間</option>
+                >
+                  <option value="">時間</option>
+                  {[...Array(24).keys()].map(h => (
+                    <option key={h+1} value={h+1}>{h+1} 時間</option>
                   ))}
-                </datalist>
+                </select>
               </div>
             </div>
             <div className="flex-1">
               <label className="block text-lg font-bold text-yellow-400 mb-1">分 {MODE_EMOJIS[aiMode]?.min || MODE_EMOJIS['gal'].min}</label>
               <div className="flex gap-2 items-center">
-                <input
-                  type="number"
-                  min={0}
-                  max={59}
-                  value={min === 0 ? "" : String(min)}
-                  onChange={e => setMin(e.target.value === "" ? 0 : Number(e.target.value))}
+                <select
+                  value={min ?? ''}
+                  onChange={e => setMin(e.target.value === '' ? null : Number(e.target.value))}
                   className={`border-2 ${styles.inputBorder} rounded-full px-4 py-2 w-24 ${styles.inputText} font-bold ${styles.inputBg}`}
-                  placeholder="分を入力 or 選択"
-                  list="min-list"
-                />
-                <datalist id="min-list">
-                  {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map(m => (
+                >
+                  <option value="">分</option>
+                  {[5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map(m => (
                     <option key={m} value={m}>{m} 分</option>
                   ))}
-                </datalist>
+                </select>
               </div>
             </div>
           </div>
@@ -490,9 +480,9 @@ export default function JibunTimer() {
           </div>
 
           <button className={`${styles.btnPrimary} text-white rounded-full px-6 py-3 w-full mt-2 text-lg font-bold shadow-lg hover:scale-105 transition-all border-2 ${styles.btnBorder} flex items-center gap-2`} onClick={() => {
-            if (!name || (hour === 0 && min === 0)) return;
-            setActivities([...activities, { id: Date.now(), name, hour, min, category }]);
-            setName(""); setHour(0); setMin(0); setCategory(categories[0]);
+            if (!name || (hour === null && min === null)) return;
+            setActivities([...activities, { id: Date.now(), name, hour: hour ?? 0, min: min ?? 0, category }]);
+            setName(""); setHour(null); setMin(null); setCategory(categories[0]);
           }}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnPrimary || '💖'}</span>活動を追加する！</button>
         </div>
   <button className={`bg-white ${styles.heading} border-2 ${styles.whiteBtnBorder} rounded-full px-6 py-3 mb-2 text-lg font-bold shadow hover:bg-pink-50 flex items-center gap-2`} onClick={() => setView("home")}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnHome || '🏠'}</span>ホームに戻る</button>
