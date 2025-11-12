@@ -263,7 +263,7 @@ export default function JibunTimer() {
     try {
       const m = localStorage.getItem('jibun_timer_ai_mode');
       if (m && ['gal', 'healing', 'cool', 'tsundere', 'business'].includes(m)) {
-        setAiMode(m as any);
+        setAiMode(m as "gal"|"healing"|"cool"|"tsundere"|"business");
       }
     } catch (e) {
       console.error('aiModeの読み込みに失敗しました', e);
@@ -370,7 +370,7 @@ export default function JibunTimer() {
     } else if (view !== "result") {
       setAdvice("");
     }
-  }, [view, activities, aiMode]);
+  }, [view, activities, aiMode, personality]);
   // (history 用の棒グラフデータは未使用のため一旦省略)
 
   // Pie chart data for current activities (colors follow selected mode)
