@@ -22,8 +22,11 @@ export async function POST(req: NextRequest) {
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     return NextResponse.json({ result: text });
-  } catch (e: any) {
+  } catch (e: unknown) {
+    // 型が不明な例外を安全に扱う
     console.error("Gemini API error:", e);
-    return NextResponse.json({ error: e.message || String(e) }, { status: 500 });
+    let message = String(e);
+    if (e instanceof Error) message = e.message;
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
