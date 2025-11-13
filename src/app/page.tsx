@@ -136,27 +136,27 @@ const MODE_STYLES: Record<string, { bg: string; btnPrimary: string; btnAccent: s
 // モードごとのテキスト（タイトルやサブテキスト）
 const MODE_TEXTS: Record<string, { homeTitle: string; homeSubtitle: string; resultHeading: string }> = {
   gal: {
-    homeTitle: 'じぶんタイマー💖',
+    homeTitle: 'Time is moneyger',
     homeSubtitle: '健康マジ大事っしょ？！キラキラしてこ☆',
     resultHeading: '💖 あなたの1日の配分 💖',
   },
   healing: {
-    homeTitle: 'じぶんタイマー — ゆったりケア💧',
+    homeTitle: 'Time is moneyger',
     homeSubtitle: '無理せず、毎日をやさしく整えよう',
     resultHeading: '🌿 あなたの1日の配分 🌿',
   },
   cool: {
-    homeTitle: 'Jibun Timer — Focus Mode',
+    homeTitle: 'Time is moneyger',
     homeSubtitle: 'シンプルに時間を可視化して効率化',
     resultHeading: '📊 Your Daily Breakdown',
   },
   tsundere: {
-    homeTitle: 'じぶんタイマー（べ、別に見てやってもいいけど）',
+    homeTitle: 'Time is moneyger',
     homeSubtitle: 'ちゃんと入力しなさいよね…（心配なんだから）',
     resultHeading: '💢 あなたの1日の配分（見てやるわ）',
   },
   business: {
-    homeTitle: 'Productivity Timer',
+    homeTitle: 'Time is moneyger',
     homeSubtitle: '効率的な時間配分で成果を最大化する',
     resultHeading: '📈 あなたの1日の配分',
   },
