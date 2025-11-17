@@ -248,12 +248,15 @@ export default function JibunTimer() {
   // Geminiアドバイス用
   const [advice, setAdvice] = useState("");
   const [adviceLoading, setAdviceLoading] = useState(false);
+  const [showFullAdvice, setShowFullAdvice] = useState(false);
   // 1ヶ月予測用
   const [prediction, setPrediction] = useState("");
   const [predictionLoading, setPredictionLoading] = useState(false);
+  const [showFullPrediction, setShowFullPrediction] = useState(false);
   // 履歴分析用
   const [historyAdvice, setHistoryAdvice] = useState("");
   const [historyAdviceLoading, setHistoryAdviceLoading] = useState(false);
+  const [showFullHistoryAdvice, setShowFullHistoryAdvice] = useState(false);
   // AI出力モード
   const [aiMode, setAiMode] = useState<"gal"|"healing"|"cool"|"tsundere"|"business">("gal");
   const styles = MODE_STYLES[aiMode] || MODE_STYLES['gal'];
@@ -303,6 +306,14 @@ export default function JibunTimer() {
       if (counts[k] > bestScore) { best = k; bestScore = counts[k]; }
     });
     return best;
+  };
+
+  // テキストを文字数ベースで短縮してプレビューを返すヘルパー
+  const truncatePreview = (text: string, max = 120) => {
+    if (!text) return "";
+    // 改行を含む場合でも先頭から max 文字を切り取る
+    if (text.length <= max) return text;
+    return text.slice(0, max) + "…";
   };
 
   // personality を localStorage から読み込む
@@ -633,11 +644,23 @@ export default function JibunTimer() {
         <div className={`mb-4 text-lg font-bold ${styles.inputText} ${styles.cardBg} rounded-xl p-4 border-2 ${styles.cardBorder} shadow`}>
           <div className="mb-2 flex items-center gap-2"><span>{MODE_EMOJIS[aiMode]?.advice || MODE_EMOJIS['gal'].advice} アドバイス:</span></div>
           <div>
-            {adviceLoading ? "AIが考え中..." : Array.isArray(advice) ? (
-              <ul className="list-disc pl-6 mt-2">
-                {advice.map((msg: string, idx: number) => <li key={idx}>{msg}</li>)}
-              </ul>
-            ) : <div className="mt-2">{advice}</div>}
+            {adviceLoading ? (
+              "AIが考え中..."
+            ) : (
+              <div>
+                <div className="mt-2 whitespace-pre-line text-sm text-gray-800">
+                  {showFullAdvice ? advice : truncatePreview(advice, 140)}
+                </div>
+                {advice && advice.length > 140 && (
+                  <button
+                    className="mt-2 text-sm text-blue-600 underline"
+                    onClick={() => setShowFullAdvice(s => !s)}
+                  >
+                    {showFullAdvice ? '閉じる' : 'もっと見る'}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
         {/* 1ヶ月後予測 */}
@@ -671,7 +694,12 @@ export default function JibunTimer() {
           {prediction && (
             <div className="bg-white rounded-xl p-3 border-2 border-yellow-100 shadow text-sm text-gray-800">
               <div className="font-bold text-yellow-700 mb-2">1ヶ月後の予測</div>
-              <div className="whitespace-pre-line">{prediction}</div>
+              <div className="whitespace-pre-line text-sm text-gray-800">
+                {showFullPrediction ? prediction : truncatePreview(prediction, 140)}
+              </div>
+              {prediction && prediction.length > 140 && (
+                <button className="mt-2 text-sm text-blue-600 underline" onClick={() => setShowFullPrediction(s => !s)}>{showFullPrediction ? '閉じる' : 'もっと見る'}</button>
+              )}
             </div>
           )}
         </div>
@@ -707,7 +735,17 @@ export default function JibunTimer() {
             }}><span className="mr-1">{MODE_EMOJIS[aiMode]?.predict || '🔮'}</span>履歴を分析してアドバイス</button>
             <button className={`bg-white ${styles.heading} rounded-full px-4 py-2 text-sm font-bold shadow hover:bg-gray-50 border-2 ${styles.whiteBtnBorder} flex items-center gap-2`} onClick={() => { setHistory([]); localStorage.removeItem('jibun_timer_history'); }}><span className="mr-1">🧹</span>履歴を消去</button>
           </div>
-          {historyAdviceLoading ? <div className="text-sm text-gray-600">AIが分析中です...</div> : historyAdvice ? <div className={`bg-white rounded-xl p-3 border-2 ${styles.cardBorder} shadow text-sm text-gray-800`}><div className="font-bold mb-2">履歴からのアドバイス</div><div className="whitespace-pre-line">{historyAdvice}</div></div> : null}
+          {historyAdviceLoading ? (
+            <div className="text-sm text-gray-600">AIが分析中です...</div>
+          ) : historyAdvice ? (
+            <div className={`bg-white rounded-xl p-3 border-2 ${styles.cardBorder} shadow text-sm text-gray-800`}>
+              <div className="font-bold mb-2">履歴からのアドバイス</div>
+              <div className="whitespace-pre-line text-sm text-gray-800">{showFullHistoryAdvice ? historyAdvice : truncatePreview(historyAdvice, 140)}</div>
+              {historyAdvice && historyAdvice.length > 140 && (
+                <button className="mt-2 text-sm text-blue-600 underline" onClick={() => setShowFullHistoryAdvice(s => !s)}>{showFullHistoryAdvice ? '閉じる' : 'もっと見る'}</button>
+              )}
+            </div>
+          ) : null}
         </div>
           {history.length === 0 ? (
             <div className={`text-center font-bold text-lg ${styles.labelText} ${MODE_EMPTY_EXTRA_CLASS[aiMode] || ''}`}>
