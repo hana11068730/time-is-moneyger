@@ -261,6 +261,12 @@ export default function JibunTimer() {
   const [aiMode, setAiMode] = useState<"gal"|"healing"|"cool"|"tsundere"|"business">("gal");
   const styles = MODE_STYLES[aiMode] || MODE_STYLES['gal'];
 
+  // 共通クラス（主要ボタンやホワイトボタンの統一スタイル）
+  const mainBtnClass = `${styles.btnPrimary} text-white rounded-full px-6 py-3 mb-2 text-lg font-bold shadow-lg hover:scale-105 transition-all border-2 ${styles.btnBorder} flex items-center gap-2 w-full justify-center`;
+  // フッターなど横幅を固定しない（元の）ボタンスタイル
+  const mainBtnInlineClass = `${styles.btnPrimary} text-white rounded-full px-6 py-3 mb-2 text-lg font-bold shadow-lg hover:scale-105 transition-all border-2 ${styles.btnBorder} flex items-center gap-2`;
+  const whiteBtnInlineClass = `bg-white ${styles.heading} border-2 ${styles.whiteBtnBorder} rounded-full px-6 py-3 text-lg font-bold shadow hover:bg-pink-50 flex items-center gap-2`;
+
   // AIモードをlocalStorageから読み込む（初回マウント時）
   useEffect(() => {
     try {
@@ -306,14 +312,6 @@ export default function JibunTimer() {
       if (counts[k] > bestScore) { best = k; bestScore = counts[k]; }
     });
     return best;
-  };
-
-  // テキストを文字数ベースで短縮してプレビューを返すヘルパー
-  const truncatePreview = (text: string, max = 120) => {
-    if (!text) return "";
-    // 改行を含む場合でも先頭から max 文字を切り取る
-    if (text.length <= max) return text;
-    return text.slice(0, max) + "…";
   };
 
   // personality を localStorage から読み込む
@@ -434,8 +432,8 @@ export default function JibunTimer() {
             <button className={`${styles.btnAccent} text-white rounded-full px-4 py-2 text-lg font-bold shadow mb-2`} onClick={() => setView('personality')}>性格診断を受ける</button>
           )}
         </div>
-  <button className={`${styles.btnPrimary} text-white rounded-full px-6 py-3 mb-3 text-lg font-bold shadow-lg hover:scale-105 transition-all border-2 ${styles.btnBorder} flex items-center gap-2`} onClick={() => setView("input")}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnPrimary || '📝'}</span>1日の時間入力スタート！</button>
-  <button className={`bg-white ${styles.heading} border-2 ${styles.whiteBtnBorder} rounded-full px-6 py-3 text-lg font-bold shadow hover:bg-pink-50 flex items-center gap-2`} onClick={() => setView("history")}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnSecondary || '📒'}</span>過去の記録をみる</button>
+  <button className={mainBtnInlineClass} onClick={() => setView("input")}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnPrimary || '📝'}</span>1日の時間入力スタート！</button>
+  <button className={whiteBtnInlineClass} onClick={() => setView("history")}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnSecondary || '📒'}</span>過去の記録をみる</button>
       </div>
     );
   }
@@ -490,14 +488,16 @@ export default function JibunTimer() {
             </select>
           </div>
 
-          <button className={`${styles.btnPrimary} text-white rounded-full px-6 py-3 w-full mt-2 text-lg font-bold shadow-lg hover:scale-105 transition-all border-2 ${styles.btnBorder} flex items-center gap-2`} onClick={() => {
+          <button className={mainBtnClass} onClick={() => {
             if (!name || (hour === null && min === null)) return;
             setActivities([...activities, { id: Date.now(), name, hour: hour ?? 0, min: min ?? 0, category }]);
             setName(""); setHour(null); setMin(null); setCategory(categories[0]);
           }}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnPrimary || '💖'}</span>活動を追加する！</button>
         </div>
-  <button className={`bg-white ${styles.heading} border-2 ${styles.whiteBtnBorder} rounded-full px-6 py-3 mb-2 text-lg font-bold shadow hover:bg-pink-50 flex items-center gap-2`} onClick={() => setView("home")}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnHome || '🏠'}</span>ホームに戻る</button>
-  <button className={`${styles.btnPrimary} text-white rounded-full px-6 py-3 text-lg font-bold shadow-lg hover:scale-105 transition-all border-2 ${styles.btnBorder} flex items-center gap-2`} onClick={() => { if (activities.length > 0) setView("result"); }}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnPrimary || '🌟'}</span>完了して結果みる</button>
+  <div className="w-full max-w-xs flex flex-col items-center gap-2">
+    <button className={whiteBtnInlineClass} onClick={() => setView("home")}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnHome || '🏠'}</span>ホームに戻る</button>
+    <button className={mainBtnInlineClass} onClick={() => { if (activities.length > 0) setView("result"); }}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnPrimary || '🌟'}</span>完了して結果みる</button>
+  </div>
       </div>
     );
   }
@@ -648,8 +648,8 @@ export default function JibunTimer() {
               "AIが考え中..."
             ) : (
               <div>
-                <div className="mt-2 whitespace-pre-line text-sm text-gray-800">
-                  {showFullAdvice ? advice : truncatePreview(advice, 140)}
+                <div className={`${!showFullAdvice ? 'truncate-lines' : ''} mt-2 whitespace-pre-line text-sm text-gray-800`} aria-expanded={showFullAdvice}>
+                  {advice}
                 </div>
                 {advice && advice.length > 140 && (
                   <button
@@ -664,9 +664,9 @@ export default function JibunTimer() {
           </div>
         </div>
         {/* 1ヶ月後予測 */}
-        <div className="mb-4 w-full max-w-xs">
+        <div className="mb-4 w-full max-w-xs flex flex-col items-center">
           <button
-            className={`${styles.btnAccent} text-white rounded-full px-4 py-2 mb-2 text-md font-bold shadow hover:scale-105 transition-all`}
+            className={`${styles.btnAccent} text-white rounded-full px-6 py-3 mb-2 text-lg font-bold shadow-lg hover:scale-105 transition-all border-2 ${styles.btnBorder} flex items-center gap-2 w-full justify-center`}
             onClick={async () => {
               if (activities.length === 0) return alert('まずは活動を追加してください');
               setPredictionLoading(true);
@@ -694,8 +694,8 @@ export default function JibunTimer() {
           {prediction && (
             <div className="bg-white rounded-xl p-3 border-2 border-yellow-100 shadow text-sm text-gray-800">
               <div className="font-bold text-yellow-700 mb-2">1ヶ月後の予測</div>
-              <div className="whitespace-pre-line text-sm text-gray-800">
-                {showFullPrediction ? prediction : truncatePreview(prediction, 140)}
+              <div className={`${!showFullPrediction ? 'truncate-lines' : ''} whitespace-pre-line text-sm text-gray-800`} aria-expanded={showFullPrediction}>
+                {prediction}
               </div>
               {prediction && prediction.length > 140 && (
                 <button className="mt-2 text-sm text-blue-600 underline" onClick={() => setShowFullPrediction(s => !s)}>{showFullPrediction ? '閉じる' : 'もっと見る'}</button>
@@ -703,8 +703,10 @@ export default function JibunTimer() {
             </div>
           )}
         </div>
-    <button className={`${styles.btnPrimary} text-white rounded-full px-6 py-3 mb-2 text-lg font-bold shadow-lg hover:scale-105 transition-all border-2 ${styles.btnBorder} flex items-center gap-2`} onClick={() => { setActivities([]); setView("input"); setAdvice(""); }}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnAgain || '🔄'}</span>もう一度入力</button>
-  <button className={`bg-white ${styles.heading} border-2 ${styles.whiteBtnBorder} rounded-full px-6 py-3 text-lg font-bold shadow hover:bg-pink-50 flex items-center gap-2`} onClick={() => { const now = new Date(); const dateStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,"0")}/${now.getDate().toString().padStart(2,"0")} ${now.getHours().toString().padStart(2,"0")}:${now.getMinutes().toString().padStart(2,"0")}`; const activitiesCopy = activities.map(a => ({ ...a })); setHistory([...history, { activities: activitiesCopy, date: dateStr }]); setActivities([]); setView("home"); setAdvice(""); }}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnHome || '🏠'}</span>ホームに戻る</button>
+    <div className="w-full max-w-xs flex flex-col items-center gap-2">
+      <button className={mainBtnInlineClass} onClick={() => { setActivities([]); setView("input"); setAdvice(""); }}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnAgain || '🔄'}</span>もう一度入力</button>
+      <button className={whiteBtnInlineClass} onClick={() => { const now = new Date(); const dateStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,"0")}/${now.getDate().toString().padStart(2,"0")} ${now.getHours().toString().padStart(2,"0")}:${now.getMinutes().toString().padStart(2,"0")}`; const activitiesCopy = activities.map(a => ({ ...a })); setHistory([...history, { activities: activitiesCopy, date: dateStr }]); setActivities([]); setView("home"); setAdvice(""); }}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnHome || '🏠'}</span>ホームに戻る</button>
+    </div>
       </div>
     );
   }
@@ -740,7 +742,7 @@ export default function JibunTimer() {
           ) : historyAdvice ? (
             <div className={`bg-white rounded-xl p-3 border-2 ${styles.cardBorder} shadow text-sm text-gray-800`}>
               <div className="font-bold mb-2">履歴からのアドバイス</div>
-              <div className="whitespace-pre-line text-sm text-gray-800">{showFullHistoryAdvice ? historyAdvice : truncatePreview(historyAdvice, 140)}</div>
+              <div className={`${!showFullHistoryAdvice ? 'truncate-lines' : ''} whitespace-pre-line text-sm text-gray-800`}>{historyAdvice}</div>
               {historyAdvice && historyAdvice.length > 140 && (
                 <button className="mt-2 text-sm text-blue-600 underline" onClick={() => setShowFullHistoryAdvice(s => !s)}>{showFullHistoryAdvice ? '閉じる' : 'もっと見る'}</button>
               )}
@@ -785,7 +787,7 @@ export default function JibunTimer() {
               ))}
             </div>
           )}
-  <button className={`${styles.btnPrimary} text-white rounded-full px-6 py-3 text-lg font-bold shadow-lg hover:scale-105 transition-all border-2 ${styles.btnBorder} flex items-center gap-2`} onClick={() => setView("home")}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnHome || '🏠'}</span>ホームに戻る</button>
+  <button className={whiteBtnInlineClass} onClick={() => setView("home")}><span className="mr-2">{MODE_EMOJIS[aiMode]?.btnHome || '🏠'}</span>ホームに戻る</button>
       </div>
     );
   }
