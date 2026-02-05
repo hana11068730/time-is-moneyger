@@ -412,7 +412,7 @@ export default function JibunTimer() {
     )}
   </div>
         <div className="mb-4 w-full max-w-xs">
-              <label className="block text-sm font-bold text-gray-600 mb-1">AIモードを選択</label>
+              <label className="block text-sm font-bold text-gray-600 mb-1">アドバイザーを選択</label>
               <select value={aiMode} onChange={e => setAiMode(e.target.value as "gal"|"healing"|"cool"|"tsundere"|"business")} className={`w-full p-2 rounded-full border-2 ${styles.inputBorder} bg-white font-bold`}>
             <option value="gal">ギャル</option>
             <option value="healing">ヒーリング</option>
